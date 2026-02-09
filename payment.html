@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Gateway | Real Meet Premium</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; color: #0f172a; margin: 0; }
+        header { position: sticky; top: 0; z-index: 1000; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); border-bottom: 1px solid #e2e8f0; }
+        @keyframes blinker { 50% { opacity: 0; } }
+        .blink-city { animation: blinker 1.5s linear infinite; color: #3b82f6; font-weight: 800; font-size: 9px; text-transform: uppercase; letter-spacing: 2px; }
+        .payment-card { background: white; border-radius: 35px; border: 1px solid #f1f5f9; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+        .step-num { width: 28px; height: 28px; background: #3b82f6; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; flex-shrink: 0; }
+        #payment-toast { position: fixed; bottom: 30px; left: 20px; background: white; padding: 12px 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px; transform: translateY(200%); transition: 0.5s; z-index: 10000; border-left: 4px solid #22c55e; }
+        .toast-active { transform: translateY(0) !important; }
+        footer { background: #020617; color: #64748b; padding-top: 60px; }
+        .footer-heading { color: white; font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; display: block; }
+        .timer-box { background: #fef2f2; border: 1px solid #fee2e2; color: #ef4444; padding: 8px 15px; border-radius: 12px; font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; gap: 8px; }
+        .tele-float { position: fixed; right: 20px; bottom: 30px; background: #229ED9; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 20px rgba(34, 158, 217, 0.3); z-index: 9999; border: 2px solid white; animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    </style>
+</head>
+<body onload="initPayment()">
+
+    <header class="py-4 px-4 md:px-10">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <button onclick="history.back()" class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="fas fa-chevron-left"></i></button>
+                <div>
+                    <h1 class="text-3xl font-black italic tracking-tighter text-blue-600 leading-none">REAL<span class="text-slate-900">MEET</span></h1>
+                    <p id="dynamic-head-loc" class="blink-city mt-1 italic tracking-[3px]">Locating Services...</p>
+                </div>
+            </div>
+            <div class="hidden md:block">
+                <div class="flex items-center gap-2 bg-white shadow-sm border border-slate-100 px-4 py-2 rounded-full">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    <span class="text-[9px] font-black text-slate-600 uppercase">Gateway Encrypted</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-lg mx-auto px-4 py-8">
+        
+        <div class="bg-slate-900 rounded-[30px] p-6 text-white mb-6 shadow-xl relative overflow-hidden">
+            <div class="relative z-10">
+                <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Status: Profile pending due to payment</p>
+                <h2 class="text-xl font-black italic uppercase">Welcome, <span id="clientNameDisplay" class="text-blue-400">User</span></h2>
+                <p class="text-[11px] opacity-70 mt-1 font-bold uppercase tracking-tight">confirmation for <span id="targetGirlDisplay" class="text-white">Profile</span></p>
+            </div>
+            <i class="fas fa-user-lock absolute right-[-10px] top-[-10px] text-white/5 text-8xl"></i>
+        </div>
+
+        <div class="text-center mb-6">
+            <div class="timer-box">
+                <i class="fas fa-clock"></i>
+                <span>SECURE WINDOW EXPIRES: <span id="timer">02:00</span></span>
+            </div>
+        </div>
+
+        <div class="payment-card p-6 md:p-8">
+            <div class="text-center mb-8">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Connection Protocol Fee</p>
+                <h3 class="text-5xl font-black text-slate-900">₹499</h3>
+                <p class="text-[9px] font-black text-green-500 mt-2 uppercase tracking-widest italic font-bold">100% Secure & safe Payment</p>
+            </div>
+
+            <div class="space-y-6 mb-8">
+                <div class="flex gap-4">
+                    <div class="step-num">1</div>
+                    <div class="text-xs font-bold text-slate-600 leading-relaxed uppercase">
+                        <b>Scan & Pay:</b> Complete the transaction using any UPI app.
+                    </div>
+                </div>
+
+                <div class="flex justify-center">
+                    <div class="p-3 border-[6px] border-slate-900 rounded-[40px] bg-white shadow-2xl relative">
+                        <img src="qrcode.jpg" alt="UPI Scan" class="w-52 h-52 rounded-[30px]">
+                        <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[8px] font-black px-4 py-1 rounded-full uppercase">Secure QR</div>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <div class="step-num">2</div>
+                    <div class="text-xs font-bold text-slate-600 leading-relaxed uppercase">
+                        <b>Verification:</b> Share payment proof with the coordinator via Telegram.
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 border border-slate-100 p-4 rounded-2xl">
+                    <p class="text-[10px] font-black text-slate-800 uppercase mb-2 leading-tight">
+                        <i class="fas fa-key text-blue-600 mr-2"></i> How to Connect with Profile?
+                    </p>
+                    <p class="text-[9px] text-slate-500 font-bold leading-relaxed uppercase">
+                        Once your payment is verified, the coordinator will issue a <b>Unique Secret Access Code</b>. This code is required to unlock the private WhatsApp contact and finalize your Real Meet appointment.
+                    </p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <a href="upi://pay?pa=your-upi-id@okicici&pn=RealMeet&am=499&cu=INR" class="flex items-center justify-center gap-3 w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg">
+                    <i class="fas fa-bolt"></i> Pay Now via UPI
+                </a>
+                
+                <button onclick="sendToTelegram()" class="flex items-center justify-center gap-3 w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest">
+                    <i class="fab fa-telegram-plane"></i> Submit Proof (Telegram)
+                </button>
+            </div>
+
+            <div class="mt-10 pt-8 border-t border-slate-100 text-center">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Have Your Secret Access Code?</p>
+                <div class="flex gap-2">
+                    <input type="text" id="secretCodeInput" placeholder="Enter Provided Code" class="flex-1 bg-slate-100 rounded-xl px-4 py-3 text-xs font-black outline-none focus:ring-2 focus:ring-green-500 uppercase">
+                    <button onclick="handleWhatsAppSecret()" class="bg-green-600 text-white px-6 rounded-xl font-black text-[10px] uppercase shadow-lg shadow-green-100">Connect Now</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="max-w-7xl mx-auto px-6 py-20 grid grid-cols-2 md:grid-cols-4 gap-12 border-b border-slate-900">
+            <div class="col-span-2 md:col-span-1">
+                <h1 class="text-2xl font-black italic text-white mb-6">REAL<span class="text-blue-500">MEET</span></h1>
+                <p class="text-xs leading-relaxed opacity-40 mb-8 font-medium uppercase">End-to-end encrypted connection gateway. Member privacy is our priority.</p>
+            </div>
+            <div><span class="footer-heading">Support</span><ul class="text-[11px] font-bold space-y-4 uppercase tracking-widest"><li>Payment Help</li><li>Refund Status</li></ul></div>
+            <div><span class="footer-heading">Safety</span><ul class="text-[11px] font-bold space-y-4 uppercase tracking-widest"><li>Verified Only</li><li>Privacy Policy</li></ul></div>
+            <div><span class="footer-heading">Compliance</span><div class="bg-blue-600/5 border border-blue-500/20 p-5 rounded-2xl text-[9px] opacity-40 font-bold leading-relaxed uppercase">PCI-DSS Secure Environment.</div></div>
+        </div>
+        <p class="text-center py-10 text-[8px] font-black opacity-30 tracking-[4px]">© 2026 REAL MEET NETWORK | ENCRYPTED</p>
+    </footer>
+
+    <a href="https://t.me/Xnehhaa" class="tele-float"><i class="fab fa-telegram-plane text-xl"></i></a>
+
+    <div id="payment-toast">
+        <div class="w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs"><i class="fas fa-check"></i></div>
+        <div>
+            <p id="toast-user" class="text-[11px] font-black text-slate-800"></p>
+            <p class="text-[9px] text-slate-500 font-bold uppercase tracking-tighter">Verified ₹499 via UPI</p>
+        </div>
+    </div>
+
+    <script>
+        const fakePayers = ["Raj M.", "Suresh K.", "Vivek D.", "Arun S.", "Nikhil M.", "Sanjay K.", "Pritam S.", "Rahul V.", "Kunal J.", "Abhay A.", "Mohit P.", "Ishant B.", "Varun G.", "Tushar R.", "Yash L.", "Deepak T.", "Ankit D.", "Harsh H.", "Rishi W.", "Tanmay C."];
+        let currentCity = "India";
+
+        async function initPayment() {
+            try {
+                const res = await fetch('https://ipapi.co/json/');
+                const data = await res.json();
+                if(data.city) currentCity = data.city;
+            } catch(e) {}
+            document.getElementById('dynamic-head-loc').innerText = `Live in ${currentCity}`;
+
+            const data = JSON.parse(localStorage.getItem('tempClient'));
+            if(data) {
+                document.getElementById('clientNameDisplay').innerText = data.name;
+                document.getElementById('targetGirlDisplay').innerText = data.targetProfile;
+            }
+
+            let time = 120;
+            setInterval(() => {
+                let mins = Math.floor(time / 60);
+                let secs = time % 60;
+                document.getElementById('timer').innerText = `0${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                if(time > 0) time--;
+            }, 1000);
+
+            setInterval(() => {
+                const toast = document.getElementById('payment-toast');
+                document.getElementById('toast-user').innerText = fakePayers[Math.floor(Math.random() * fakePayers.length)];
+                toast.classList.add('toast-active');
+                setTimeout(() => toast.classList.remove('toast-active'), 4000);
+            }, 30000); 
+        }
+
+        function handleWhatsAppSecret() {
+            const code = document.getElementById('secretCodeInput').value.trim().toUpperCase();
+            const data = JSON.parse(localStorage.getItem('tempClient')) || {name: 'Client', phone: 'N/A', targetProfile: 'Premium Profile'};
+            
+            const msg = `⚡️ ACCESS CODE VERIFICATION ⚡️\n\nCode Entered: ${code}\nClient Name: ${data.name}\nPhone: ${data.phone}\nCity: ${currentCity}\nTarget Profile: ${data.targetProfile}\n\nI have the secret code. Start the meeting process.`;
+
+            if(code === "RM11") {
+                window.location.href = `https://wa.me/919354185036?text=${encodeURIComponent(msg)}`;
+            } else if(code === "RM22") {
+                window.location.href = `https://wa.me/917678125700?text=${encodeURIComponent(msg)}`;
+            } else {
+                alert("ACCESS DENIED: The entered code is invalid or expired. Please contact the Telegram coordinator after payment to receive your unique Access Code.");
+            }
+        }
+
+        function sendToTelegram() {
+            const data = JSON.parse(localStorage.getItem('tempClient')) || {name: 'Guest', phone: 'N/A', targetProfile: 'Girl'};
+            const msg = `⚡️ PAYMENT SUBMISSION ⚡️\n\nClient Name: ${data.name}\nPhone: ${data.phone}\nCity: ${currentCity}\nTarget Profile: ${data.targetProfile}\nAmount: ₹499\n\nI have completed the payment. Please verify and send my Secret Access Code.`;
+            window.location.href = `https://t.me/Xnehhaa?text=${encodeURIComponent(msg)}`;
+        }
+    </script>
+</body>
+</html>

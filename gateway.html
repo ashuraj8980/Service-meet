@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Meet | Age Verification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0066ff;
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --white: #ffffff;
+            --text-dark: #2d3436;
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: var(--white);
+            width: 90%;
+            max-width: 480px;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .status-badge {
+            background: #eef5ff;
+            color: var(--primary);
+            padding: 6px 15px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 25px;
+        }
+
+        h2 { color: var(--text-dark); font-size: 22px; margin-bottom: 30px; }
+
+        .btn-box { display: flex; gap: 15px; }
+
+        .btn {
+            flex: 1;
+            padding: 16px;
+            border-radius: 14px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s all;
+        }
+
+        .btn-yes { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(0,102,255,0.3); }
+        .btn-yes:hover { background: #0052cc; transform: translateY(-2px); }
+
+        .btn-no { background: #f1f2f6; color: #57606f; }
+        .btn-no:hover { background: #dfe4ea; }
+
+        /* Loader */
+        #loader { display: none; margin: 30px 0; }
+        .bar-bg { width: 100%; height: 6px; background: #eee; border-radius: 10px; overflow: hidden; }
+        .bar-fill { width: 0%; height: 100%; background: var(--primary); transition: width 1.5s ease; }
+
+        /* Select Fields */
+        #selection-area { display: none; text-align: left; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        label { display: block; margin: 15px 0 8px 5px; font-weight: 600; color: #636e72; font-size: 14px; }
+        
+        select {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: 2px solid #f1f2f6;
+            background: #fbfbfb;
+            font-size: 16px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        select:focus { border-color: var(--primary); background: #fff; }
+
+        .btn-proceed { width: 100%; margin-top: 25px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="logo">REAL MEET</div>
+    <div class="status-badge">SECURE GATEWAY</div>
+
+    <div id="step-1">
+        <h2>Are you over 18?</h2>
+        <div class="btn-box">
+            <button class="btn btn-no" onclick="handleNo()">No</button>
+            <button class="btn btn-yes" onclick="handleYes()">Yes, I am</button>
+        </div>
+    </div>
+
+    <div id="loader">
+        <p style="font-size: 14px; color: #636e72;">Syncing database...</p>
+        <div class="bar-bg"><div class="bar-fill" id="fill"></div></div>
+    </div>
+
+    <div id="selection-area">
+        <label>SELECT STATE</label>
+        <select id="stateSelect" onchange="loadCities()">
+            <option value="">Select your state</option>
+        </select>
+
+        <label>SELECT CITY</label>
+        <select id="citySelect">
+            <option value="">Choose state first</option>
+        </select>
+
+        <button class="btn btn-yes btn-proceed" onclick="finish()">Continue to Profiles</button>
+    </div>
+</div>
+
+<script>
+    const indiaData = {
+        "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Kurnool", "Kakinada", "Rajahmundry", "Tirupati", "Anantapur", "Kadapa"],
+        "Arunachal Pradesh": ["Itanagar", "Naharlagun", "Pasighat", "Tawang", "Ziro"],
+        "Assam": ["Guwahati", "Silchar", "Dibrugarh", "Jorhat", "Nagaon", "Tinsukia", "Tezpur", "Bongaigaon"],
+        "Bihar": ["Patna", "Gaya", "Bhagalpur", "Muzaffarpur", "Purnia", "Darbhanga", "Arrah", "Begusarai", "Katihar", "Munger", "Saharsa", "Hajipur"],
+        "Chandigarh": ["Chandigarh"],
+        "Chhattisgarh": ["Raipur", "Bhilai", "Bilaspur", "Korba", "Rajnandgaon", "Jagdalpur", "Ambikapur", "Dhamtari"],
+        "Dadra and Nagar Haveli": ["Silvassa"],
+        "Daman and Diu": ["Daman", "Diu"],
+        "Delhi": ["New Delhi", "North Delhi", "South Delhi", "West Delhi", "East Delhi", "Rohini", "Dwarka", "Janakpuri", "Laxmi Nagar", "Vasant Kunj", "Saket", "Pitampura"],
+        "Goa": ["Panaji", "Margao", "Vasco da Gama", "Mapusa", "Ponda", "Bicholim"],
+        "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar", "Jamnagar", "Junagadh", "Gandhinagar", "Anand", "Navsari", "Morbi", "Vapi", "Bharuch"],
+        "Haryana": ["Gurugram", "Faridabad", "Panipat", "Ambala", "Yamunanagar", "Rohtak", "Hisar", "Karnal", "Sonipat", "Panchkula", "Bhiwani", "Sirsa", "Bahadurgarh"],
+        "Himachal Pradesh": ["Shimla", "Manali", "Dharamshala", "Solan", "Mandi", "Palampur", "Kullu", "Baddi"],
+        "Jammu and Kashmir": ["Srinagar", "Jammu", "Anantnag", "Baramulla", "Kathua", "Udhampur", "Sopore"],
+        "Jharkhand": ["Ranchi", "Jamshedpur", "Dhanbad", "Bokaro", "Deoghar", "Phusro", "Hazaribagh", "Giridih", "Ramgarh"],
+        "Karnataka": ["Bengaluru", "Mysuru", "Hubballi-Dharwad", "Mangaluru", "Belagavi", "Kalaburagi", "Davanagere", "Ballari", "Vijayapura", "Shivamogga", "Tumakuru", "Udupi"],
+        "Kerala": ["Kochi", "Thiruvananthapuram", "Kozhikode", "Thrissur", "Kollam", "Palakkad", "Alappuzha", "Kannur", "Kottayam", "Malappuram"],
+        "Ladakh": ["Leh", "Kargil"],
+        "Madhya Pradesh": ["Indore", "Bhopal", "Jabalpur", "Gwalior", "Ujjain", "Sagar", "Dewas", "Satna", "Ratlam", "Rewa", "Katni", "Singrauli", "Chhindwara"],
+        "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Thane", "Nashik", "Kalyan-Dombivli", "Vasai-Virar", "Aurangabad", "Navi Mumbai", "Solapur", "Mira-Bhayandar", "Amravati", "Bhiwandi", "Kolhapur", "Akola", "Panvel", "Latur", "Dhule", "Ahmednagar", "Chandrapur", "Parbhani", "Jalgaon"],
+        "Manipur": ["Imphal", "Thoubal", "Bishnupur"],
+        "Meghalaya": ["Shillong", "Tura", "Jowai"],
+        "Mizoram": ["Aizawl", "Lunglei"],
+        "Nagaland": ["Kohima", "Dimapur", "Mokokchung"],
+        "Odisha": ["Bhubaneswar", "Cuttack", "Rourkela", "Berhampur", "Sambalpur", "Puri", "Balasore", "Bhadrak", "Baripada"],
+        "Puducherry": ["Puducherry", "Karaikal", "Ozhukarai"],
+        "Punjab": ["Ludhiana", "Amritsar", "Jalandhar", "Patiala", "Bathinda", "Mohali", "Hoshiarpur", "Pathankot", "Moga", "Abohar", "Khanna"],
+        "Rajasthan": ["Jaipur", "Jodhpur", "Kota", "Bikaner", "Ajmer", "Udaipur", "Bhilwara", "Alwar", "Bharatpur", "Sikar", "Sri Ganganagar", "Pali", "Chittorgarh"],
+        "Sikkim": ["Gangtok", "Namchi", "Geyzing"],
+        "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Tiruchirappalli", "Salem", "Tiruppur", "Erode", "Vellore", "Thoothukudi", "Nagercoil", "Thanjavur", "Kanchipuram"],
+        "Telangana": ["Hyderabad", "Warangal", "Nizamabad", "Khammam", "Karimnagar", "Ramagundam", "Mahbubnagar", "Nalgonda"],
+        "Tripura": ["Agartala", "Udaipur", "Dharmanagar"],
+        "Uttar Pradesh": ["Lucknow", "Kanpur", "Ghaziabad", "Agra", "Meerut", "Varanasi", "Prayagraj", "Bareilly", "Aligarh", "Moradabad", "Saharanpur", "Gorakhpur", "Noida", "Firozabad", "Jhansi", "Muzaffarnagar", "Mathura", "Ayodhya", "Etawah"],
+        "Uttarakhand": ["Dehradun", "Haridwar", "Roorkee", "Haldwani", "Rishikesh", "Kashipur", "Rudrapur"],
+        "West Bengal": ["Kolkata", "Howrah", "Asansol", "Siliguri", "Durgapur", "Bardhaman", "Malda", "Baharampur", "Habra", "Kharagpur", "Shantipur"]
+    };
+
+    const stateSelect = document.getElementById('stateSelect');
+    Object.keys(indiaData).sort().forEach(state => {
+        let opt = document.createElement('option');
+        opt.value = state;
+        opt.innerHTML = state;
+        stateSelect.appendChild(opt);
+    });
+
+    function handleNo() {
+        window.location.href = "https://www.google.com";
+    }
+
+    function handleYes() {
+        document.getElementById('step-1').style.display = 'none';
+        document.getElementById('loader').style.display = 'block';
+        setTimeout(() => { document.getElementById('fill').style.width = '100%'; }, 100);
+        
+        setTimeout(() => {
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('selection-area').style.display = 'block';
+        }, 1800);
+    }
+
+    function loadCities() {
+        const state = stateSelect.value;
+        const citySelect = document.getElementById('citySelect');
+        citySelect.innerHTML = '<option value="">Select City</option>';
+        if(state) {
+            indiaData[state].sort().forEach(city => {
+                let opt = document.createElement('option');
+                opt.value = city;
+                opt.innerHTML = city;
+                citySelect.appendChild(opt);
+            });
+        }
+    }
+
+    function finish() {
+        const city = document.getElementById('citySelect').value;
+        if(city) {
+            localStorage.setItem('selectedCity', city);
+            localStorage.setItem('gatePassed', 'true');
+            window.location.href = "index.html";
+        } else {
+            alert("Please select a city!");
+        }
+    }
+</script>
+</body>
+</html>
