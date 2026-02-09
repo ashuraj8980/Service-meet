@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Meet | VIP Premium service</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; color: #0f172a; margin: 0; overflow-x: hidden; }
+
+        header { position: fixed; top: 0; width: 100%; z-index: 1000; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border-bottom: 1px solid #e2e8f0; transition: transform 0.4s ease; }
+        .header-hidden { transform: translateY(-100%); }
+
+        @keyframes neonPulse { 0% { color: #3b82f6; } 50% { color: #ec4899; } 100% { color: #3b82f6; } }
+        .live-loc-anim { animation: neonPulse 2s infinite; font-weight: 600; font-size: 11px; }
+
+        /* Extra Compact Notification */
+        #profile-toast { 
+            position: fixed; bottom: 85px; left: 12px; 
+            background: white; padding: 8px; border-radius: 15px; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08); 
+            display: flex; align-items: center; gap: 8px; 
+            transform: translateY(250%); transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            z-index: 9999; border: 1px solid #f1f5f9;
+            width: 250px;
+        }
+        .toast-active { transform: translateY(0) !important; }
+        .toast-img-mini { width: 38px; height: 38px; border-radius: 8px; object-fit: cover; }
+        .toast-user-info { font-size: 8px; color: #94a3b8; font-weight: 600; }
+        .toast-main-msg { font-size: 11px; color: #1e293b; font-weight: 800; line-height: 1.1; }
+
+        /* Verified Badge & Rating */
+        .verified-badge { position: absolute; top: 8px; right: 8px; background: #3b82f6; color: white; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 8px; border: 1.5px solid white; z-index: 10; }
+        .rating-chip { background: rgba(255, 255, 255, 0.9); padding: 2px 6px; border-radius: 6px; font-size: 9px; font-weight: 800; color: #f59e0b; display: flex; align-items: center; gap: 2px; position: absolute; bottom: 8px; left: 8px; }
+
+        .view-profile-btn { background: #22c55e; color: white; font-weight: 700; font-size: 11px; padding: 10px 0; border-radius: 12px; width: 100%; text-align: center; display: block; margin-top: 10px; transition: 0.3s; border: none; cursor: pointer; }
+        
+        footer { background: #020617; color: #64748b; padding-top: 60px; }
+        .footer-reviews { background: #0f172a; padding: 25px 0; overflow: hidden; border-top: 2px solid #1e293b; }
+        
+        /* Slower Animation */
+        .review-track { display: inline-block; animation: slideSlow 110s linear infinite; white-space: nowrap; }
+        @keyframes slideSlow { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }
+        .rev-card { display: inline-block; background: #1e293b; padding: 12px 20px; margin-right: 20px; border-radius: 12px; border: 1px solid #334155; }
+
+        .tele-float { position: fixed; right: 15px; bottom: 20px; background: #229ED9; color: white; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 999; border: 2px solid white; box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+    </style>
+</head>
+<body onload="initApp()" class="pt-32">
+
+    <header id="main-header" class="py-4 px-6">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="text-center md:text-left">
+                <h1 class="text-2xl font-black italic tracking-tighter text-blue-600">Real<span class="text-slate-900">Meet</span></h1>
+                <p id="live-loc-text" class="live-loc-anim mt-1">Detecting local models...</p>
+            </div>
+            <div class="relative w-full md:w-80">
+                <input type="text" id="citySearch" oninput="runSearch()" placeholder="Search City (e.g. Delhi)" 
+                class="w-full bg-slate-100 border-none rounded-full px-5 py-2.5 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <div class="flex items-center justify-between mb-8">
+            <h2 class="text-lg font-bold text-slate-800">Genuine Profiles</h2>
+            <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-slate-100 shadow-sm">
+                <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                <span class="text-[10px] font-bold text-slate-600 uppercase" id="loc-tag">India</span>
+            </div>
+        </div>
+        <div id="grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-5"></div>
+    </main>
+
+    <div id="profile-toast">
+        <img id="toast-img" src="" class="toast-img-mini">
+        <div class="flex-1 overflow-hidden">
+            <p id="toast-name" class="toast-user-info"></p>
+            <p id="toast-msg" class="toast-main-msg"></p>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-reviews">
+            <div class="review-track" id="reviewTrack"></div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 py-16 grid grid-cols-2 md:grid-cols-4 gap-10">
+            <div class="col-span-2 md:col-span-1">
+                <h1 class="text-xl font-black italic text-white mb-4">Real<span class="text-blue-500">Meet</span></h1>
+                <p class="text-xs opacity-40 leading-relaxed mb-6">Premium network for verified companions. Discretion and safety is our priority.</p>
+                <div class="flex gap-3">
+                    <a href="#" class="text-slate-500 hover:text-white"><i class="fab fa-instagram"></i></a>
+                    <a href="https://t.me/Xnehhaa" class="text-slate-500 hover:text-white"><i class="fab fa-telegram-plane"></i></a>
+                </div>
+            </div>
+            <div>
+                <span class="text-white text-[11px] font-bold uppercase mb-4 block">Information</span>
+                <ul class="text-[11px] font-medium space-y-3">
+                    <li><a href="#">Refund Policy</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Use</a></li>
+                </ul>
+            </div>
+            <div>
+                <span class="text-white text-[11px] font-bold uppercase mb-4 block">Company</span>
+                <ul class="text-[11px] font-medium space-y-3">
+                    <li>Verified Models</li>
+                    <li>Independent VIP</li>
+                    <li>Verified Agency</li>
+                </ul>
+            </div>
+            <div class="bg-blue-600/10 p-4 rounded-xl border border-blue-500/20">
+                <p class="text-[10px] text-blue-400 font-bold mb-1"><i class="fas fa-shield-alt mr-1"></i> Private & Secure</p>
+                <p class="text-[9px] opacity-40 leading-tight">Your data is encrypted.</p>
+            </div>
+        </div>
+    </footer>
+
+    <a href="https://t.me/Xnehhaa" class="tele-float"><i class="fab fa-telegram-plane text-xl"></i></a>
+
+    <script>
+        const firstNames = ["Sneha", "Zoya", "Ananya", "Mehak", "Sana", "Ishita", "Priya", "Riya", "Kavya", "Tanya", "Simran", "Nisha", "Pooja", "Kiara", "Muskan", "Aliza", "Ayat", "Jiya", "Aysha", "Sanya"];
+        const lastNames = ["Sharma", "Khan", "Malhotra", "Sheikh", "Verma", "Ahmed", "Kapoor", "Mirza", "Gupta", "Ansari"];
+        const clientNames = ["Rahul", "Amit", "Sumit", "Zaid", "Arjun", "Vikram", "Saahil", "Rohan", "Deepak", "Yash", "Kabir", "Aditya", "Manish", "Faisal", "Varun", "Piyush", "Akash", "Karan", "Imran", "Sunny"];
+        
+        const naughtyMsgs = [
+            "Available for real meet tonight 💋", "Ready for video call & sexy talk 💋", "Private meeting available 💋🔥", 
+            "Want to talk on call? 📞", "Secret meeting at your hotel 🏨", "Available for night stay 🏠",
+            "Wants to connect with you 💞", "Online now for video call 📱", "Available for sexy talk 💋",
+            "Let's meet in person tonight 🔥", "Direct meeting, no advance ❌"
+        ];
+
+        const clientFeedbacks = [
+            "Genuine profile and safe meeting.", "Best service in the city, highly recommend.", "Very professional and discreet.", "Found exactly what I was looking for.", "Direct meeting without any hassle.", "Amazing experience, will book again.", "Verified profiles and polite behavior.", "100% genuine, no fake photos.", "Safe and comfortable environment.", "The best agency for real meets."
+        ];
+
+        function updateLocationDisplay(city) {
+            if(city) {
+                document.getElementById('live-loc-text').innerText = `Available in ${city} (Live Now)`;
+                document.getElementById('loc-tag').innerText = city;
+            }
+        }
+
+        function initApp() {
+            // Get selected city from Gateway (Default to Delhi if not found)
+            const selectedCity = localStorage.getItem('selectedCity') || "Delhi";
+            updateLocationDisplay(selectedCity);
+
+            let profiles = [];
+            for(let i=1; i<=85; i++) {
+                profiles.push({
+                    id: i,
+                    fullName: firstNames[Math.floor(Math.random()*firstNames.length)] + " " + lastNames[Math.floor(Math.random()*lastNames.length)],
+                    city: selectedCity, 
+                    img: `pic${(i%80)+1}.jpg`,
+                    age: Math.floor(Math.random() * (25 - 20 + 1)) + 20,
+                    rating: (Math.random() * (5.0 - 4.5) + 4.5).toFixed(1)
+                });
+            }
+            window.allProfiles = profiles.sort(() => Math.random() - 0.5);
+            renderProfiles(window.allProfiles);
+
+            let revHtml = "";
+            for(let i=0; i<30; i++) {
+                revHtml += `<div class="rev-card"><p class="text-[10px] text-white font-bold">${clientNames[Math.floor(Math.random()*clientNames.length)]} (${selectedCity})</p><p class="text-[10px] text-slate-500 mt-1">${clientFeedbacks[Math.floor(Math.random()*clientFeedbacks.length)]}</p></div>`;
+            }
+            document.getElementById('reviewTrack').innerHTML = revHtml + revHtml;
+
+            triggerRandomPopup();
+        }
+
+        function renderProfiles(data) {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = "";
+            data.forEach(p => {
+                grid.innerHTML += `
+                    <div class="profile-card bg-white p-2 rounded-2xl border border-slate-100 shadow-sm" data-city="${p.city.toLowerCase()}">
+                        <div class="relative h-44 overflow-hidden rounded-xl bg-slate-100">
+                            <img src="${p.img}" class="w-full h-full object-cover">
+                            <div class="verified-badge"><i class="fas fa-check"></i></div>
+                            <div class="rating-chip"><i class="fas fa-star"></i> ${p.rating}</div>
+                        </div>
+                        <div class="p-3 text-center">
+                            <h3 class="text-[12px] font-bold text-slate-800">${p.fullName}, ${p.age}</h3>
+                            <p class="text-[9px] text-blue-500 font-semibold mt-1">${p.city}</p>
+                            <button onclick="goToProfile('${p.fullName}', '${p.city}', '${p.img}', '${p.age}', '${p.rating}')" class="view-profile-btn">View Profile</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function goToProfile(name, city, img, age, rating) {
+            const selectedProfile = { name, city, img, age, rating };
+            localStorage.setItem('selectedProfile', JSON.stringify(selectedProfile));
+            window.location.href = 'profile.html';
+        }
+
+        function runSearch() {
+            const input = document.getElementById('citySearch').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.profile-card');
+            cards.forEach(card => {
+                const city = card.getAttribute('data-city');
+                if (input === "" || city.includes(input)) {
+                    card.style.display = "block";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        }
+
+        function triggerRandomPopup() {
+            const randomDelay = Math.floor(Math.random() * (15000 - 7000 + 1)) + 7000;
+            setTimeout(() => {
+                showPopup();
+                triggerRandomPopup();
+            }, randomDelay);
+        }
+
+        function showPopup() {
+            const toast = document.getElementById('profile-toast');
+            if(!window.allProfiles) return;
+            const p = window.allProfiles[Math.floor(Math.random()*window.allProfiles.length)];
+            document.getElementById('toast-img').src = p.img;
+            document.getElementById('toast-name').innerText = `${p.fullName.split(' ')[0]} from ${p.city}`;
+            document.getElementById('toast-msg').innerText = naughtyMsgs[Math.floor(Math.random()*naughtyMsgs.length)];
+            toast.classList.add('toast-active');
+            setTimeout(() => toast.classList.remove('toast-active'), 4500);
+        }
+
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('main-header');
+            if (window.pageYOffset > lastScroll && window.pageYOffset > 100) header.classList.add('header-hidden');
+            else header.classList.remove('header-hidden');
+            lastScroll = window.pageYOffset;
+        });
+    </script>
+</body>
+</html>

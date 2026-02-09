@@ -3,239 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real Meet | VIP Premium service</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Real Meet | Age Verification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; color: #0f172a; margin: 0; overflow-x: hidden; }
-
-        header { position: fixed; top: 0; width: 100%; z-index: 1000; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border-bottom: 1px solid #e2e8f0; transition: transform 0.4s ease; }
-        .header-hidden { transform: translateY(-100%); }
-
-        @keyframes neonPulse { 0% { color: #3b82f6; } 50% { color: #ec4899; } 100% { color: #3b82f6; } }
-        .live-loc-anim { animation: neonPulse 2s infinite; font-weight: 600; font-size: 11px; }
-
-        /* Extra Compact Notification */
-        #profile-toast { 
-            position: fixed; bottom: 85px; left: 12px; 
-            background: white; padding: 8px; border-radius: 15px; 
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08); 
-            display: flex; align-items: center; gap: 8px; 
-            transform: translateY(250%); transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            z-index: 9999; border: 1px solid #f1f5f9;
-            width: 250px;
+        :root {
+            --primary: #0066ff;
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --white: #ffffff;
+            --text-dark: #2d3436;
         }
-        .toast-active { transform: translateY(0) !important; }
-        .toast-img-mini { width: 38px; height: 38px; border-radius: 8px; object-fit: cover; }
-        .toast-user-info { font-size: 8px; color: #94a3b8; font-weight: 600; }
-        .toast-main-msg { font-size: 11px; color: #1e293b; font-weight: 800; line-height: 1.1; }
 
-        /* Verified Badge & Rating */
-        .verified-badge { position: absolute; top: 8px; right: 8px; background: #3b82f6; color: white; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 8px; border: 1.5px solid white; z-index: 10; }
-        .rating-chip { background: rgba(255, 255, 255, 0.9); padding: 2px 6px; border-radius: 6px; font-size: 9px; font-weight: 800; color: #f59e0b; display: flex; align-items: center; gap: 2px; position: absolute; bottom: 8px; left: 8px; }
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-        .view-profile-btn { background: #22c55e; color: white; font-weight: 700; font-size: 11px; padding: 10px 0; border-radius: 12px; width: 100%; text-align: center; display: block; margin-top: 10px; transition: 0.3s; border: none; cursor: pointer; }
+        .container {
+            background: var(--white);
+            width: 90%;
+            max-width: 480px;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .status-badge {
+            background: #eef5ff;
+            color: var(--primary);
+            padding: 6px 15px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 25px;
+        }
+
+        h2 { color: var(--text-dark); font-size: 22px; margin-bottom: 30px; }
+
+        .btn-box { display: flex; gap: 15px; }
+
+        .btn {
+            flex: 1;
+            padding: 16px;
+            border-radius: 14px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s all;
+        }
+
+        .btn-yes { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(0,102,255,0.3); }
+        .btn-yes:hover { background: #0052cc; transform: translateY(-2px); }
+
+        .btn-no { background: #f1f2f6; color: #57606f; }
+        .btn-no:hover { background: #dfe4ea; }
+
+        /* Loader */
+        #loader { display: none; margin: 30px 0; }
+        .bar-bg { width: 100%; height: 6px; background: #eee; border-radius: 10px; overflow: hidden; }
+        .bar-fill { width: 0%; height: 100%; background: var(--primary); transition: width 1.5s ease; }
+
+        /* Select Fields */
+        #selection-area { display: none; text-align: left; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        label { display: block; margin: 15px 0 8px 5px; font-weight: 600; color: #636e72; font-size: 14px; }
         
-        footer { background: #020617; color: #64748b; padding-top: 60px; }
-        .footer-reviews { background: #0f172a; padding: 25px 0; overflow: hidden; border-top: 2px solid #1e293b; }
-        
-        /* Slower Animation */
-        .review-track { display: inline-block; animation: slideSlow 110s linear infinite; white-space: nowrap; }
-        @keyframes slideSlow { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }
-        .rev-card { display: inline-block; background: #1e293b; padding: 12px 20px; margin-right: 20px; border-radius: 12px; border: 1px solid #334155; }
+        select {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: 2px solid #f1f2f6;
+            background: #fbfbfb;
+            font-size: 16px;
+            outline: none;
+            cursor: pointer;
+        }
 
-        .tele-float { position: fixed; right: 15px; bottom: 20px; background: #229ED9; color: white; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 999; border: 2px solid white; box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+        select:focus { border-color: var(--primary); background: #fff; }
+
+        .btn-proceed { width: 100%; margin-top: 25px; }
     </style>
 </head>
-<body onload="initApp()" class="pt-32">
+<body>
 
-    <header id="main-header" class="py-4 px-6">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="text-center md:text-left">
-                <h1 class="text-2xl font-black italic tracking-tighter text-blue-600">Real<span class="text-slate-900">Meet</span></h1>
-                <p id="live-loc-text" class="live-loc-anim mt-1">Detecting local models...</p>
-            </div>
-            <div class="relative w-full md:w-80">
-                <input type="text" id="citySearch" oninput="runSearch()" placeholder="Search City (e.g. Delhi)" 
-                class="w-full bg-slate-100 border-none rounded-full px-5 py-2.5 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-        </div>
-    </header>
+<div class="container">
+    <div class="logo">REAL MEET</div>
+    <div class="status-badge">SECURE GATEWAY</div>
 
-    <main class="max-w-7xl mx-auto px-4 py-8">
-        <div class="flex items-center justify-between mb-8">
-            <h2 class="text-lg font-bold text-slate-800">Genuine Profiles</h2>
-            <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-slate-100 shadow-sm">
-                <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                <span class="text-[10px] font-bold text-slate-600 uppercase" id="loc-tag">India</span>
-            </div>
-        </div>
-        <div id="grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-5"></div>
-    </main>
-
-    <div id="profile-toast">
-        <img id="toast-img" src="" class="toast-img-mini">
-        <div class="flex-1 overflow-hidden">
-            <p id="toast-name" class="toast-user-info"></p>
-            <p id="toast-msg" class="toast-main-msg"></p>
+    <div id="step-1">
+        <h2>Are you over 18?</h2>
+        <div class="btn-box">
+            <button class="btn btn-no" onclick="handleNo()">No</button>
+            <button class="btn btn-yes" onclick="handleYes()">Yes, I am</button>
         </div>
     </div>
 
-    <footer>
-        <div class="footer-reviews">
-            <div class="review-track" id="reviewTrack"></div>
-        </div>
-        <div class="max-w-7xl mx-auto px-6 py-16 grid grid-cols-2 md:grid-cols-4 gap-10">
-            <div class="col-span-2 md:col-span-1">
-                <h1 class="text-xl font-black italic text-white mb-4">Real<span class="text-blue-500">Meet</span></h1>
-                <p class="text-xs opacity-40 leading-relaxed mb-6">Premium network for verified companions. Discretion and safety is our priority.</p>
-                <div class="flex gap-3">
-                    <a href="#" class="text-slate-500 hover:text-white"><i class="fab fa-instagram"></i></a>
-                    <a href="https://t.me/Xnehhaa" class="text-slate-500 hover:text-white"><i class="fab fa-telegram-plane"></i></a>
-                </div>
-            </div>
-            <div>
-                <span class="text-white text-[11px] font-bold uppercase mb-4 block">Information</span>
-                <ul class="text-[11px] font-medium space-y-3">
-                    <li><a href="#">Refund Policy</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">Terms of Use</a></li>
-                </ul>
-            </div>
-            <div>
-                <span class="text-white text-[11px] font-bold uppercase mb-4 block">Company</span>
-                <ul class="text-[11px] font-medium space-y-3">
-                    <li>Verified Models</li>
-                    <li>Independent VIP</li>
-                    <li>Verified Agency</li>
-                </ul>
-            </div>
-            <div class="bg-blue-600/10 p-4 rounded-xl border border-blue-500/20">
-                <p class="text-[10px] text-blue-400 font-bold mb-1"><i class="fas fa-shield-alt mr-1"></i> Private & Secure</p>
-                <p class="text-[9px] opacity-40 leading-tight">Your data is encrypted.</p>
-            </div>
-        </div>
-    </footer>
+    <div id="loader">
+        <p style="font-size: 14px; color: #636e72;">Syncing database...</p>
+        <div class="bar-bg"><div class="bar-fill" id="fill"></div></div>
+    </div>
 
-    <a href="https://t.me/Xnehhaa" class="tele-float"><i class="fab fa-telegram-plane text-xl"></i></a>
+    <div id="selection-area">
+        <label>SELECT STATE</label>
+        <select id="stateSelect" onchange="loadCities()">
+            <option value="">Select your state</option>
+        </select>
 
-    <script>
-        const firstNames = ["Sneha", "Zoya", "Ananya", "Mehak", "Sana", "Ishita", "Priya", "Riya", "Kavya", "Tanya", "Simran", "Nisha", "Pooja", "Kiara", "Muskan", "Aliza", "Ayat", "Jiya", "Aysha", "Sanya"];
-        const lastNames = ["Sharma", "Khan", "Malhotra", "Sheikh", "Verma", "Ahmed", "Kapoor", "Mirza", "Gupta", "Ansari"];
-        const clientNames = ["Rahul", "Amit", "Sumit", "Zaid", "Arjun", "Vikram", "Saahil", "Rohan", "Deepak", "Yash", "Kabir", "Aditya", "Manish", "Faisal", "Varun", "Piyush", "Akash", "Karan", "Imran", "Sunny"];
+        <label>SELECT CITY</label>
+        <select id="citySelect">
+            <option value="">Choose state first</option>
+        </select>
+
+        <button class="btn btn-yes btn-proceed" onclick="finish()">Continue to Profiles</button>
+    </div>
+</div>
+
+<script>
+    const indiaData = {
+        "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Kurnool", "Kakinada", "Rajahmundry", "Tirupati", "Anantapur", "Kadapa"],
+        "Arunachal Pradesh": ["Itanagar", "Naharlagun", "Pasighat", "Tawang", "Ziro"],
+        "Assam": ["Guwahati", "Silchar", "Dibrugarh", "Jorhat", "Nagaon", "Tinsukia", "Tezpur", "Bongaigaon"],
+        "Bihar": ["Patna", "Gaya", "Bhagalpur", "Muzaffarpur", "Purnia", "Darbhanga", "Arrah", "Begusarai", "Katihar", "Munger", "Saharsa", "Hajipur"],
+        "Chandigarh": ["Chandigarh"],
+        "Chhattisgarh": ["Raipur", "Bhilai", "Bilaspur", "Korba", "Rajnandgaon", "Jagdalpur", "Ambikapur", "Dhamtari"],
+        "Dadra and Nagar Haveli": ["Silvassa"],
+        "Daman and Diu": ["Daman", "Diu"],
+        "Delhi": ["New Delhi", "North Delhi", "South Delhi", "West Delhi", "East Delhi", "Rohini", "Dwarka", "Janakpuri", "Laxmi Nagar", "Vasant Kunj", "Saket", "Pitampura"],
+        "Goa": ["Panaji", "Margao", "Vasco da Gama", "Mapusa", "Ponda", "Bicholim"],
+        "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar", "Jamnagar", "Junagadh", "Gandhinagar", "Anand", "Navsari", "Morbi", "Vapi", "Bharuch"],
+        "Haryana": ["Gurugram", "Faridabad", "Panipat", "Ambala", "Yamunanagar", "Rohtak", "Hisar", "Karnal", "Sonipat", "Panchkula", "Bhiwani", "Sirsa", "Bahadurgarh"],
+        "Himachal Pradesh": ["Shimla", "Manali", "Dharamshala", "Solan", "Mandi", "Palampur", "Kullu", "Baddi"],
+        "Jammu and Kashmir": ["Srinagar", "Jammu", "Anantnag", "Baramulla", "Kathua", "Udhampur", "Sopore"],
+        "Jharkhand": ["Ranchi", "Jamshedpur", "Dhanbad", "Bokaro", "Deoghar", "Phusro", "Hazaribagh", "Giridih", "Ramgarh"],
+        "Karnataka": ["Bengaluru", "Mysuru", "Hubballi-Dharwad", "Mangaluru", "Belagavi", "Kalaburagi", "Davanagere", "Ballari", "Vijayapura", "Shivamogga", "Tumakuru", "Udupi"],
+        "Kerala": ["Kochi", "Thiruvananthapuram", "Kozhikode", "Thrissur", "Kollam", "Palakkad", "Alappuzha", "Kannur", "Kottayam", "Malappuram"],
+        "Ladakh": ["Leh", "Kargil"],
+        "Madhya Pradesh": ["Indore", "Bhopal", "Jabalpur", "Gwalior", "Ujjain", "Sagar", "Dewas", "Satna", "Ratlam", "Rewa", "Katni", "Singrauli", "Chhindwara"],
+        "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Thane", "Nashik", "Kalyan-Dombivli", "Vasai-Virar", "Aurangabad", "Navi Mumbai", "Solapur", "Mira-Bhayandar", "Amravati", "Bhiwandi", "Kolhapur", "Akola", "Panvel", "Latur", "Dhule", "Ahmednagar", "Chandrapur", "Parbhani", "Jalgaon"],
+        "Manipur": ["Imphal", "Thoubal", "Bishnupur"],
+        "Meghalaya": ["Shillong", "Tura", "Jowai"],
+        "Mizoram": ["Aizawl", "Lunglei"],
+        "Nagaland": ["Kohima", "Dimapur", "Mokokchung"],
+        "Odisha": ["Bhubaneswar", "Cuttack", "Rourkela", "Berhampur", "Sambalpur", "Puri", "Balasore", "Bhadrak", "Baripada"],
+        "Puducherry": ["Puducherry", "Karaikal", "Ozhukarai"],
+        "Punjab": ["Ludhiana", "Amritsar", "Jalandhar", "Patiala", "Bathinda", "Mohali", "Hoshiarpur", "Pathankot", "Moga", "Abohar", "Khanna"],
+        "Rajasthan": ["Jaipur", "Jodhpur", "Kota", "Bikaner", "Ajmer", "Udaipur", "Bhilwara", "Alwar", "Bharatpur", "Sikar", "Sri Ganganagar", "Pali", "Chittorgarh"],
+        "Sikkim": ["Gangtok", "Namchi", "Geyzing"],
+        "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Tiruchirappalli", "Salem", "Tiruppur", "Erode", "Vellore", "Thoothukudi", "Nagercoil", "Thanjavur", "Kanchipuram"],
+        "Telangana": ["Hyderabad", "Warangal", "Nizamabad", "Khammam", "Karimnagar", "Ramagundam", "Mahbubnagar", "Nalgonda"],
+        "Tripura": ["Agartala", "Udaipur", "Dharmanagar"],
+        "Uttar Pradesh": ["Lucknow", "Kanpur", "Ghaziabad", "Agra", "Meerut", "Varanasi", "Prayagraj", "Bareilly", "Aligarh", "Moradabad", "Saharanpur", "Gorakhpur", "Noida", "Firozabad", "Jhansi", "Muzaffarnagar", "Mathura", "Ayodhya", "Etawah"],
+        "Uttarakhand": ["Dehradun", "Haridwar", "Roorkee", "Haldwani", "Rishikesh", "Kashipur", "Rudrapur"],
+        "West Bengal": ["Kolkata", "Howrah", "Asansol", "Siliguri", "Durgapur", "Bardhaman", "Malda", "Baharampur", "Habra", "Kharagpur", "Shantipur"]
+    };
+
+    const stateSelect = document.getElementById('stateSelect');
+    Object.keys(indiaData).sort().forEach(state => {
+        let opt = document.createElement('option');
+        opt.value = state;
+        opt.innerHTML = state;
+        stateSelect.appendChild(opt);
+    });
+
+    function handleNo() {
+        window.location.href = "https://www.google.com";
+    }
+
+    function handleYes() {
+        document.getElementById('step-1').style.display = 'none';
+        document.getElementById('loader').style.display = 'block';
+        setTimeout(() => { document.getElementById('fill').style.width = '100%'; }, 100);
         
-        const naughtyMsgs = [
-            "Available for real meet tonight 💋", "Ready for video call & sexy talk 💋", "Private meeting available 💋🔥", 
-            "Want to talk on call? 📞", "Secret meeting at your hotel 🏨", "Available for night stay 🏠",
-            "Wants to connect with you 💞", "Online now for video call 📱", "Available for sexy talk 💋",
-            "Let's meet in person tonight 🔥", "Direct meeting, no advance ❌"
-        ];
+        setTimeout(() => {
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('selection-area').style.display = 'block';
+        }, 1800);
+    }
 
-        const clientFeedbacks = [
-            "Genuine profile and safe meeting.", "Best service in the city, highly recommend.", "Very professional and discreet.", "Found exactly what I was looking for.", "Direct meeting without any hassle.", "Amazing experience, will book again.", "Verified profiles and polite behavior.", "100% genuine, no fake photos.", "Safe and comfortable environment.", "The best agency for real meets."
-        ];
-
-        function updateLocationDisplay(city) {
-            if(city) {
-                document.getElementById('live-loc-text').innerText = `Available in ${city} (Live Now)`;
-                document.getElementById('loc-tag').innerText = city;
-            }
-        }
-
-        function initApp() {
-            // Get selected city from Gateway (Default to Delhi if not found)
-            const selectedCity = localStorage.getItem('selectedCity') || "Delhi";
-            updateLocationDisplay(selectedCity);
-
-            let profiles = [];
-            for(let i=1; i<=85; i++) {
-                profiles.push({
-                    id: i,
-                    fullName: firstNames[Math.floor(Math.random()*firstNames.length)] + " " + lastNames[Math.floor(Math.random()*lastNames.length)],
-                    city: selectedCity, 
-                    img: `pic${(i%80)+1}.jpg`,
-                    age: Math.floor(Math.random() * (25 - 20 + 1)) + 20,
-                    rating: (Math.random() * (5.0 - 4.5) + 4.5).toFixed(1)
-                });
-            }
-            window.allProfiles = profiles.sort(() => Math.random() - 0.5);
-            renderProfiles(window.allProfiles);
-
-            let revHtml = "";
-            for(let i=0; i<30; i++) {
-                revHtml += `<div class="rev-card"><p class="text-[10px] text-white font-bold">${clientNames[Math.floor(Math.random()*clientNames.length)]} (${selectedCity})</p><p class="text-[10px] text-slate-500 mt-1">${clientFeedbacks[Math.floor(Math.random()*clientFeedbacks.length)]}</p></div>`;
-            }
-            document.getElementById('reviewTrack').innerHTML = revHtml + revHtml;
-
-            triggerRandomPopup();
-        }
-
-        function renderProfiles(data) {
-            const grid = document.getElementById('grid');
-            grid.innerHTML = "";
-            data.forEach(p => {
-                grid.innerHTML += `
-                    <div class="profile-card bg-white p-2 rounded-2xl border border-slate-100 shadow-sm" data-city="${p.city.toLowerCase()}">
-                        <div class="relative h-44 overflow-hidden rounded-xl bg-slate-100">
-                            <img src="${p.img}" class="w-full h-full object-cover">
-                            <div class="verified-badge"><i class="fas fa-check"></i></div>
-                            <div class="rating-chip"><i class="fas fa-star"></i> ${p.rating}</div>
-                        </div>
-                        <div class="p-3 text-center">
-                            <h3 class="text-[12px] font-bold text-slate-800">${p.fullName}, ${p.age}</h3>
-                            <p class="text-[9px] text-blue-500 font-semibold mt-1">${p.city}</p>
-                            <button onclick="goToProfile('${p.fullName}', '${p.city}', '${p.img}', '${p.age}', '${p.rating}')" class="view-profile-btn">View Profile</button>
-                        </div>
-                    </div>`;
+    function loadCities() {
+        const state = stateSelect.value;
+        const citySelect = document.getElementById('citySelect');
+        citySelect.innerHTML = '<option value="">Select City</option>';
+        if(state) {
+            indiaData[state].sort().forEach(city => {
+                let opt = document.createElement('option');
+                opt.value = city;
+                opt.innerHTML = city;
+                citySelect.appendChild(opt);
             });
         }
+    }
 
-        function goToProfile(name, city, img, age, rating) {
-            const selectedProfile = { name, city, img, age, rating };
-            localStorage.setItem('selectedProfile', JSON.stringify(selectedProfile));
-            window.location.href = 'profile.html';
+    function finish() {
+        const city = document.getElementById('citySelect').value;
+        if(city) {
+            localStorage.setItem('selectedCity', city);
+            localStorage.setItem('gatePassed', 'true');
+            window.location.href = "index.html";
+        } else {
+            alert("Please select a city!");
         }
-
-        function runSearch() {
-            const input = document.getElementById('citySearch').value.toLowerCase().trim();
-            const cards = document.querySelectorAll('.profile-card');
-            cards.forEach(card => {
-                const city = card.getAttribute('data-city');
-                if (input === "" || city.includes(input)) {
-                    card.style.display = "block";
-                } else {
-                    card.style.display = "none";
-                }
-            });
-        }
-
-        function triggerRandomPopup() {
-            const randomDelay = Math.floor(Math.random() * (15000 - 7000 + 1)) + 7000;
-            setTimeout(() => {
-                showPopup();
-                triggerRandomPopup();
-            }, randomDelay);
-        }
-
-        function showPopup() {
-            const toast = document.getElementById('profile-toast');
-            if(!window.allProfiles) return;
-            const p = window.allProfiles[Math.floor(Math.random()*window.allProfiles.length)];
-            document.getElementById('toast-img').src = p.img;
-            document.getElementById('toast-name').innerText = `${p.fullName.split(' ')[0]} from ${p.city}`;
-            document.getElementById('toast-msg').innerText = naughtyMsgs[Math.floor(Math.random()*naughtyMsgs.length)];
-            toast.classList.add('toast-active');
-            setTimeout(() => toast.classList.remove('toast-active'), 4500);
-        }
-
-        let lastScroll = 0;
-        window.addEventListener('scroll', () => {
-            const header = document.getElementById('main-header');
-            if (window.pageYOffset > lastScroll && window.pageYOffset > 100) header.classList.add('header-hidden');
-            else header.classList.remove('header-hidden');
-            lastScroll = window.pageYOffset;
-        });
-    </script>
+    }
+</script>
 </body>
 </html>
