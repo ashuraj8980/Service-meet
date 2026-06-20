@@ -1,225 +1,283 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real Meet | Age Verification</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #0066ff;
-            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            --white: #ffffff;
-            --text-dark: #2d3436;
-        }
-
-        body, html {
-            height: 100%;
-            margin: 0;
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-gradient);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .container {
-            background: var(--white);
-            width: 90%;
-            max-width: 480px;
-            padding: 40px;
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-
-        .logo {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 10px;
-            letter-spacing: -1px;
-        }
-
-        .status-badge {
-            background: #eef5ff;
-            color: var(--primary);
-            padding: 6px 15px;
-            border-radius: 50px;
-            font-size: 12px;
-            font-weight: 700;
-            display: inline-block;
-            margin-bottom: 25px;
-        }
-
-        h2 { color: var(--text-dark); font-size: 22px; margin-bottom: 30px; }
-
-        .btn-box { display: flex; gap: 15px; }
-
-        .btn {
-            flex: 1;
-            padding: 16px;
-            border-radius: 14px;
-            border: none;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s all;
-        }
-
-        .btn-yes { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(0,102,255,0.3); }
-        .btn-yes:hover { background: #0052cc; transform: translateY(-2px); }
-
-        .btn-no { background: #f1f2f6; color: #57606f; }
-        .btn-no:hover { background: #dfe4ea; }
-
-        /* Loader */
-        #loader { display: none; margin: 30px 0; }
-        .bar-bg { width: 100%; height: 6px; background: #eee; border-radius: 10px; overflow: hidden; }
-        .bar-fill { width: 0%; height: 100%; background: var(--primary); transition: width 1.5s ease; }
-
-        /* Select Fields */
-        #selection-area { display: none; text-align: left; animation: fadeIn 0.5s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        label { display: block; margin: 15px 0 8px 5px; font-weight: 600; color: #636e72; font-size: 14px; }
-        
-        select {
-            width: 100%;
-            padding: 14px;
-            border-radius: 12px;
-            border: 2px solid #f1f2f6;
-            background: #fbfbfb;
-            font-size: 16px;
-            outline: none;
-            cursor: pointer;
-        }
-
-        select:focus { border-color: var(--primary); background: #fff; }
-
-        .btn-proceed { width: 100%; margin-top: 25px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delhivery EOD Tool</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 16px; }
+.card { background: white; border-radius: 10px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+h1 { color: #1a237e; font-size: 18px; margin-bottom: 2px; }
+.sub { color: #888; font-size: 12px; margin-bottom: 14px; }
+label { font-weight: bold; font-size: 13px; color: #333; display: block; margin-bottom: 4px; margin-top: 10px; }
+input[type=text], input[type=date] { width: 100%; padding: 9px 10px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 14px; }
+input:focus { border-color: #1a237e; outline: none; }
+.upload-area { border: 2px dashed #1a237e; border-radius: 8px; padding: 22px; text-align: center; cursor: pointer; background: #f8f9ff; margin-top: 10px; }
+.upload-area:hover { background: #e8eaf6; }
+.upload-area p { color: #1a237e; font-weight: bold; font-size: 15px; }
+.upload-area small { color: #666; font-size: 12px; }
+input[type=file] { display: none; }
+.btn { width: 100%; padding: 13px; background: #1a237e; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+.btn:hover { background: #283593; }
+.btn:disabled { background: #bbb; cursor: not-allowed; }
+.btn-green { background: #2e7d32; margin-top: 8px; }
+.btn-green:hover { background: #1b5e20; }
+.btn-orange { background: #e65100; margin-top: 8px; }
+.btn-orange:hover { background: #bf360c; }
+.status { padding: 10px 12px; border-radius: 6px; font-size: 13px; margin-top: 8px; display:none; }
+.info { background: #e3f2fd; color: #1565c0; display:block; }
+.success { background: #e8f5e9; color: #2e7d32; display:block; }
+.error { background: #ffebee; color: #c62828; display:block; }
+.stats { display: flex; gap: 8px; margin: 10px 0; }
+.stat-box { flex: 1; background: #e8eaf6; border-radius: 8px; padding: 10px; text-align: center; }
+.stat-num { font-size: 22px; font-weight: bold; color: #1a237e; }
+.stat-label { font-size: 11px; color: #666; }
+.fe-tag { display: inline-block; background: #1a237e; color: white; padding: 3px 10px; border-radius: 12px; font-size: 12px; margin: 2px; }
+.fe-list { margin: 8px 0; min-height: 30px; }
+.added-fe { background: #f5f5f5; border-radius: 6px; padding: 8px; margin-top: 6px; font-size: 12px; color: #555; }
+</style>
 </head>
 <body>
 
-<div class="container">
-    <div class="logo">REAL MEET</div>
-    <div class="status-badge">SECURE GATEWAY</div>
-
-    <div id="step-1">
-        <h2>Are you over 18?</h2>
-        <div class="btn-box">
-            <button class="btn btn-no" onclick="handleNo()">No</button>
-            <button class="btn btn-yes" onclick="handleYes()">Yes, I am</button>
-        </div>
-    </div>
-
-    <div id="loader">
-        <p style="font-size: 14px; color: #636e72;">Syncing database...</p>
-        <div class="bar-bg"><div class="bar-fill" id="fill"></div></div>
-    </div>
-
-    <div id="selection-area">
-        <label>SELECT STATE</label>
-        <select id="stateSelect" onchange="loadCities()">
-            <option value="">Select your state</option>
-        </select>
-
-        <label>SELECT CITY</label>
-        <select id="citySelect">
-            <option value="">Choose state first</option>
-        </select>
-
-        <button class="btn btn-yes btn-proceed" onclick="finish()">Continue to Profiles</button>
-    </div>
+<div class="card">
+  <h1>🚚 Delhivery EOD Tool</h1>
+  <p class="sub">CSV upload karo → Automatic EOD Rejection Sheet ready</p>
 </div>
 
+<div class="card">
+  <label>📅 Date</label>
+  <input type="date" id="dateInput">
+
+  <label>🔢 DSP Number</label>
+  <input type="text" id="dspInput" placeholder="FE se pucho DSP number">
+
+  <label>👤 FE Name</label>
+  <input type="text" id="feInput" placeholder="FE ka naam likho">
+
+  <div class="upload-area" onclick="document.getElementById('csvFile').click()">
+    <p>📂 CSV File Select Karo</p>
+    <small>Delhivery dashboard se download ki hui CSV</small>
+  </div>
+  <input type="file" id="csvFile" accept=".csv" onchange="handleFile(this)">
+
+  <div id="status" class="status"></div>
+  <button class="btn" id="addBtn" onclick="addFE()" disabled>➕ Is FE ka Data Add Karo</button>
+
+  <div id="feListDiv" style="display:none">
+    <p style="font-size:12px;font-weight:bold;margin-top:12px;color:#333">✅ Added FEs:</p>
+    <div class="fe-list" id="feList"></div>
+  </div>
+</div>
+
+<div class="card">
+  <p style="font-size:13px;font-weight:bold;color:#333;margin-bottom:8px">📊 Summary</p>
+  <div class="stats">
+    <div class="stat-box">
+      <div class="stat-num" id="totalFE">0</div>
+      <div class="stat-label">FE Added</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="totalPkts">0</div>
+      <div class="stat-label">Total Pending</div>
+    </div>
+  </div>
+  <button class="btn btn-green" id="downloadBtn" onclick="downloadEOD()" disabled>⬇️ EOD Excel Download Karo</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-    const indiaData = {
-        "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Kurnool", "Kakinada", "Rajahmundry", "Tirupati", "Anantapur", "Kadapa"],
-        "Arunachal Pradesh": ["Itanagar", "Naharlagun", "Pasighat", "Tawang", "Ziro"],
-        "Assam": ["Guwahati", "Silchar", "Dibrugarh", "Jorhat", "Nagaon", "Tinsukia", "Tezpur", "Bongaigaon"],
-        "Bihar": ["Patna", "Gaya", "Bhagalpur", "Muzaffarpur", "Purnia", "Darbhanga", "Arrah", "Begusarai", "Katihar", "Munger", "Saharsa", "Hajipur"],
-        "Chandigarh": ["Chandigarh"],
-        "Chhattisgarh": ["Raipur", "Bhilai", "Bilaspur", "Korba", "Rajnandgaon", "Jagdalpur", "Ambikapur", "Dhamtari"],
-        "Dadra and Nagar Haveli": ["Silvassa"],
-        "Daman and Diu": ["Daman", "Diu"],
-        "Delhi": ["New Delhi", "North Delhi", "South Delhi", "West Delhi", "East Delhi", "Rohini", "Dwarka", "Janakpuri", "Laxmi Nagar", "Vasant Kunj", "Saket", "Pitampura"],
-        "Goa": ["Panaji", "Margao", "Vasco da Gama", "Mapusa", "Ponda", "Bicholim"],
-        "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar", "Jamnagar", "Junagadh", "Gandhinagar", "Anand", "Navsari", "Morbi", "Vapi", "Bharuch"],
-        "Haryana": ["Gurugram", "Faridabad", "Panipat", "Ambala", "Yamunanagar", "Rohtak", "Hisar", "Karnal", "Sonipat", "Panchkula", "Bhiwani", "Sirsa", "Bahadurgarh"],
-        "Himachal Pradesh": ["Shimla", "Manali", "Dharamshala", "Solan", "Mandi", "Palampur", "Kullu", "Baddi"],
-        "Jammu and Kashmir": ["Srinagar", "Jammu", "Anantnag", "Baramulla", "Kathua", "Udhampur", "Sopore"],
-        "Jharkhand": ["Ranchi", "Jamshedpur", "Dhanbad", "Bokaro", "Deoghar", "Phusro", "Hazaribagh", "Giridih", "Ramgarh"],
-        "Karnataka": ["Bengaluru", "Mysuru", "Hubballi-Dharwad", "Mangaluru", "Belagavi", "Kalaburagi", "Davanagere", "Ballari", "Vijayapura", "Shivamogga", "Tumakuru", "Udupi"],
-        "Kerala": ["Kochi", "Thiruvananthapuram", "Kozhikode", "Thrissur", "Kollam", "Palakkad", "Alappuzha", "Kannur", "Kottayam", "Malappuram"],
-        "Ladakh": ["Leh", "Kargil"],
-        "Madhya Pradesh": ["Indore", "Bhopal", "Jabalpur", "Gwalior", "Ujjain", "Sagar", "Dewas", "Satna", "Ratlam", "Rewa", "Katni", "Singrauli", "Chhindwara"],
-        "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Thane", "Nashik", "Kalyan-Dombivli", "Vasai-Virar", "Aurangabad", "Navi Mumbai", "Solapur", "Mira-Bhayandar", "Amravati", "Bhiwandi", "Kolhapur", "Akola", "Panvel", "Latur", "Dhule", "Ahmednagar", "Chandrapur", "Parbhani", "Jalgaon"],
-        "Manipur": ["Imphal", "Thoubal", "Bishnupur"],
-        "Meghalaya": ["Shillong", "Tura", "Jowai"],
-        "Mizoram": ["Aizawl", "Lunglei"],
-        "Nagaland": ["Kohima", "Dimapur", "Mokokchung"],
-        "Odisha": ["Bhubaneswar", "Cuttack", "Rourkela", "Berhampur", "Sambalpur", "Puri", "Balasore", "Bhadrak", "Baripada"],
-        "Puducherry": ["Puducherry", "Karaikal", "Ozhukarai"],
-        "Punjab": ["Ludhiana", "Amritsar", "Jalandhar", "Patiala", "Bathinda", "Mohali", "Hoshiarpur", "Pathankot", "Moga", "Abohar", "Khanna"],
-        "Rajasthan": ["Jaipur", "Jodhpur", "Kota", "Bikaner", "Ajmer", "Udaipur", "Bhilwara", "Alwar", "Bharatpur", "Sikar", "Sri Ganganagar", "Pali", "Chittorgarh"],
-        "Sikkim": ["Gangtok", "Namchi", "Geyzing"],
-        "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Tiruchirappalli", "Salem", "Tiruppur", "Erode", "Vellore", "Thoothukudi", "Nagercoil", "Thanjavur", "Kanchipuram"],
-        "Telangana": ["Hyderabad", "Warangal", "Nizamabad", "Khammam", "Karimnagar", "Ramagundam", "Mahbubnagar", "Nalgonda"],
-        "Tripura": ["Agartala", "Udaipur", "Dharmanagar"],
-        "Uttar Pradesh": ["Lucknow", "Kanpur", "Ghaziabad", "Agra", "Meerut", "Varanasi", "Prayagraj", "Bareilly", "Aligarh", "Moradabad", "Saharanpur", "Gorakhpur", "Noida", "Firozabad", "Jhansi", "Muzaffarnagar", "Mathura", "Ayodhya", "Etawah"],
-        "Uttarakhand": ["Dehradun", "Haridwar", "Roorkee", "Haldwani", "Rishikesh", "Kashipur", "Rudrapur"],
-        "West Bengal": ["Kolkata", "Howrah", "Asansol", "Siliguri", "Durgapur", "Bardhaman", "Malda", "Baharampur", "Habra", "Kharagpur", "Shantipur"]
-    };
+// Aaj ki date auto set
+const today = new Date();
+document.getElementById('dateInput').value = today.toISOString().split('T')[0];
 
-    const stateSelect = document.getElementById('stateSelect');
-    Object.keys(indiaData).sort().forEach(state => {
-        let opt = document.createElement('option');
-        opt.value = state;
-        opt.innerHTML = state;
-        stateSelect.appendChild(opt);
+let currentCSV = null;
+let allData = []; // {date, dsp, feName, packets[]}
+
+function showStatus(msg, type) {
+  const s = document.getElementById('status');
+  s.textContent = msg;
+  s.className = 'status ' + type;
+}
+
+function handleFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  showStatus('CSV padh raha hai...', 'info');
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      currentCSV = parseCSV(e.target.result);
+      const total = currentCSV.length - 1;
+      // Count pending
+      const headers = currentCSV[0];
+      const statusIdx = headers.findIndex(h => h.toLowerCase().replace(/\s/g,'').includes('currentstatus'));
+      let pending = 0;
+      for (let i = 1; i < currentCSV.length; i++) {
+        const row = currentCSV[i];
+        const status = statusIdx >= 0 ? (row[statusIdx] || '') : '';
+        if (status.toLowerCase().trim() === 'pending') pending++;
+      }
+      showStatus(`✅ CSV ready! Total: ${total} | Pending: ${pending}`, 'success');
+      document.getElementById('addBtn').disabled = false;
+    } catch(err) {
+      showStatus('❌ Error: ' + err.message, 'error');
+    }
+  };
+  reader.readAsText(file, 'utf-8');
+}
+
+function parseCSV(text) {
+  const rows = [];
+  const lines = text.split('\n');
+  for (let line of lines) {
+    if (!line.trim()) continue;
+    const cols = [];
+    let current = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      if (line[i] === '"') { inQuotes = !inQuotes; }
+      else if (line[i] === ',' && !inQuotes) { cols.push(current.trim()); current = ''; }
+      else { current += line[i]; }
+    }
+    cols.push(current.trim());
+    rows.push(cols);
+  }
+  return rows;
+}
+
+function addFE() {
+  const date = document.getElementById('dateInput').value;
+  const dsp = document.getElementById('dspInput').value.trim();
+  const feName = document.getElementById('feInput').value.trim();
+
+  if (!dsp) { showStatus('DSP number daalo!', 'error'); return; }
+  if (!feName) { showStatus('FE name daalo!', 'error'); return; }
+  if (!currentCSV) { showStatus('CSV upload karo!', 'error'); return; }
+
+  const headers = currentCSV[0];
+  const idx = {
+    waybill: headers.findIndex(h => h.toLowerCase().includes('waybill')),
+    client:  headers.findIndex(h => h.toLowerCase().includes('client')),
+    order:   headers.findIndex(h => h.toLowerCase().includes('order')),
+    status:  headers.findIndex(h => h.toLowerCase().replace(/\s/g,'').includes('currentstatus')),
+    remark:  headers.findIndex(h => h.toLowerCase().includes('remark')),
+  };
+
+  const packets = [];
+  for (let i = 1; i < currentCSV.length; i++) {
+    const row = currentCSV[i];
+    if (!row || row.length < 2) continue;
+    const status = idx.status >= 0 ? (row[idx.status] || '').toLowerCase().trim() : '';
+    if (status !== 'pending') continue;
+    packets.push({
+      awb:    idx.waybill >= 0 ? row[idx.waybill] : '',
+      client: idx.client  >= 0 ? row[idx.client]  : '',
+      order:  idx.order   >= 0 ? row[idx.order]   : '',
+      remark: idx.remark  >= 0 ? row[idx.remark]  : '',
     });
+  }
 
-    function handleNo() {
-        window.location.href = "https://www.google.com";
-    }
+  if (packets.length === 0) {
+    showStatus('Is CSV mein koi Pending packet nahi mila!', 'error');
+    return;
+  }
 
-    function handleYes() {
-        document.getElementById('step-1').style.display = 'none';
-        document.getElementById('loader').style.display = 'block';
-        setTimeout(() => { document.getElementById('fill').style.width = '100%'; }, 100);
-        
-        setTimeout(() => {
-            document.getElementById('loader').style.display = 'none';
-            document.getElementById('selection-area').style.display = 'block';
-        }, 1800);
-    }
+  allData.push({ date, dsp, feName, packets });
 
-    function loadCities() {
-        const state = stateSelect.value;
-        const citySelect = document.getElementById('citySelect');
-        citySelect.innerHTML = '<option value="">Select City</option>';
-        if(state) {
-            indiaData[state].sort().forEach(city => {
-                let opt = document.createElement('option');
-                opt.value = city;
-                opt.innerHTML = city;
-                citySelect.appendChild(opt);
-            });
-        }
-    }
+  // UI update
+  const tag = document.createElement('span');
+  tag.className = 'fe-tag';
+  tag.textContent = `${feName} (${packets.length} pkts)`;
+  document.getElementById('feList').appendChild(tag);
+  document.getElementById('feListDiv').style.display = 'block';
 
-    function finish() {
-        const city = document.getElementById('citySelect').value;
-        if(city) {
-            localStorage.setItem('selectedCity', city);
-            localStorage.setItem('gatePassed', 'true');
-            window.location.href = "index.html";
-        } else {
-            alert("Please select a city!");
-        }
+  // Stats update
+  document.getElementById('totalFE').textContent = allData.length;
+  const totalPkts = allData.reduce((sum, fe) => sum + fe.packets.length, 0);
+  document.getElementById('totalPkts').textContent = totalPkts;
+
+  showStatus(`✅ ${feName} add ho gaya - ${packets.length} pending packets!`, 'success');
+  document.getElementById('downloadBtn').disabled = false;
+
+  // Reset for next FE
+  document.getElementById('dspInput').value = '';
+  document.getElementById('feInput').value = '';
+  document.getElementById('csvFile').value = '';
+  currentCSV = null;
+  document.getElementById('addBtn').disabled = true;
+}
+
+function downloadEOD() {
+  if (!allData.length) return;
+
+  const wb = XLSX.utils.book_new();
+
+  // ---- SHEET 1: EOD Rejection (PDF jaisa format) ----
+  const wsData = [];
+
+  // Title row
+  const dateVal = document.getElementById('dateInput').value;
+  wsData.push(['Daily EOD Rejection Report - ' + dateVal, '', '', '', '', '', '', '']);
+  wsData.push([]); // blank
+
+  // Headers - PDF jaisa
+  wsData.push(['Date', 'DSP No', 'Awb No', 'Client Name', 'Order- No', 'Remarks Of NSL', 'Fe Name', 'Hand over']);
+
+  // Pehle FE wala filter active rahega
+  const firstFE = allData[0].feName;
+
+  for (const fe of allData) {
+    for (const pkt of fe.packets) {
+      wsData.push([
+        fe.date,
+        fe.dsp,
+        pkt.awb,
+        pkt.client,
+        pkt.order,
+        pkt.remark,
+        fe.feName,
+        '' // Hand over blank
+      ]);
     }
+  }
+
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+  // Column widths
+  ws['!cols'] = [
+    {wch: 12}, {wch: 12}, {wch: 22}, {wch: 22},
+    {wch: 28}, {wch: 35}, {wch: 16}, {wch: 12}
+  ];
+
+  // Auto filter row 3 pe (header row)
+  ws['!autofilter'] = { ref: 'A3:H3' };
+
+  // Freeze row 3
+  ws['!freeze'] = { xSplit: 0, ySplit: 3 };
+
+  XLSX.utils.book_append_sheet(wb, ws, 'EOD Rejection');
+
+  // ---- SHEET 2: FE Summary ----
+  const summaryData = [
+    ['FE Summary - ' + dateVal],
+    [],
+    ['Fe Name', 'DSP No', 'Total Pending Packets']
+  ];
+  for (const fe of allData) {
+    summaryData.push([fe.feName, fe.dsp, fe.packets.length]);
+  }
+  summaryData.push([]);
+  summaryData.push(['TOTAL', '', allData.reduce((s, fe) => s + fe.packets.length, 0)]);
+
+  const ws2 = XLSX.utils.aoa_to_sheet(summaryData);
+  ws2['!cols'] = [{wch: 20}, {wch: 14}, {wch: 22}];
+  XLSX.utils.book_append_sheet(wb, ws2, 'FE Summary');
+
+  // Download
+  const fname = `EOD_Rejection_${dateVal}.xlsx`;
+  XLSX.writeFile(wb, fname);
+}
 </script>
 </body>
 </html>
