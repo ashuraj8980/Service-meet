@@ -23,8 +23,6 @@ input[type=file] { display: none; }
 .btn:disabled { background: #bbb; cursor: not-allowed; }
 .btn-green { background: #2e7d32; margin-top: 8px; }
 .btn-green:hover { background: #1b5e20; }
-.btn-orange { background: #e65100; margin-top: 8px; }
-.btn-orange:hover { background: #bf360c; }
 .status { padding: 10px 12px; border-radius: 6px; font-size: 13px; margin-top: 8px; display:none; }
 .info { background: #e3f2fd; color: #1565c0; display:block; }
 .success { background: #e8f5e9; color: #2e7d32; display:block; }
@@ -34,15 +32,13 @@ input[type=file] { display: none; }
 .stat-num { font-size: 22px; font-weight: bold; color: #1a237e; }
 .stat-label { font-size: 11px; color: #666; }
 .fe-tag { display: inline-block; background: #1a237e; color: white; padding: 3px 10px; border-radius: 12px; font-size: 12px; margin: 2px; }
-.fe-list { margin: 8px 0; min-height: 30px; }
-.added-fe { background: #f5f5f5; border-radius: 6px; padding: 8px; margin-top: 6px; font-size: 12px; color: #555; }
 </style>
 </head>
 <body>
 
 <div class="card">
   <h1>🚚 Delhivery EOD Tool</h1>
-  <p class="sub">CSV upload karo → Automatic EOD Rejection Sheet ready</p>
+  <p class="sub">CSV ya Excel upload karo → Automatic EOD sheet ready</p>
 </div>
 
 <div class="card">
@@ -55,18 +51,18 @@ input[type=file] { display: none; }
   <label>👤 FE Name</label>
   <input type="text" id="feInput" placeholder="FE ka naam likho">
 
-  <div class="upload-area" onclick="document.getElementById('csvFile').click()">
-    <p>📂 CSV File Select Karo</p>
-    <small>Delhivery dashboard se download ki hui CSV</small>
+  <div class="upload-area" onclick="document.getElementById('dataFile').click()">
+    <p>📂 File Select Karo</p>
+    <small>CSV (.csv) ya Excel (.xlsx / .xls) dono chalega</small>
   </div>
-  <input type="file" id="csvFile" accept=".csv" onchange="handleFile(this)">
+  <input type="file" id="dataFile" accept=".csv,.xlsx,.xls" onchange="handleFile(this)">
 
   <div id="status" class="status"></div>
   <button class="btn" id="addBtn" onclick="addFE()" disabled>➕ Is FE ka Data Add Karo</button>
 
-  <div id="feListDiv" style="display:none">
-    <p style="font-size:12px;font-weight:bold;margin-top:12px;color:#333">✅ Added FEs:</p>
-    <div class="fe-list" id="feList"></div>
+  <div id="feListDiv" style="display:none;margin-top:10px">
+    <p style="font-size:12px;font-weight:bold;color:#333">✅ Added FEs:</p>
+    <div id="feList" style="margin-top:4px"></div>
   </div>
 </div>
 
@@ -89,10 +85,13 @@ input[type=file] { display: none; }
 <script>
 // Aaj ki date auto set
 const today = new Date();
-document.getElementById('dateInput').value = today.toISOString().split('T')[0];
+const dd = String(today.getDate()).padStart(2,'0');
+const mm = String(today.getMonth()+1).padStart(2,'0');
+const yyyy = today.getFullYear();
+document.getElementById('dateInput').value = `${yyyy}-${mm}-${dd}`;
 
-let currentCSV = null;
-let allData = []; // {date, dsp, feName, packets[]}
+let currentData = null; // {headers:[], rows:[[]]}
+let allData = [];
 
 function showStatus(msg, type) {
   const s = document.getElementById('status');
@@ -103,28 +102,32 @@ function showStatus(msg, type) {
 function handleFile(input) {
   const file = input.files[0];
   if (!file) return;
-  showStatus('CSV padh raha hai...', 'info');
+  showStatus('File padh raha hai...', 'info');
+
   const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      currentCSV = parseCSV(e.target.result);
-      const total = currentCSV.length - 1;
-      // Count pending
-      const headers = currentCSV[0];
-      const statusIdx = headers.findIndex(h => h.toLowerCase().replace(/\s/g,'').includes('currentstatus'));
-      let pending = 0;
-      for (let i = 1; i < currentCSV.length; i++) {
-        const row = currentCSV[i];
-        const status = statusIdx >= 0 ? (row[statusIdx] || '') : '';
-        if (status.toLowerCase().trim() === 'pending') pending++;
-      }
-      showStatus(`✅ CSV ready! Total: ${total} | Pending: ${pending}`, 'success');
-      document.getElementById('addBtn').disabled = false;
-    } catch(err) {
-      showStatus('❌ Error: ' + err.message, 'error');
-    }
-  };
-  reader.readAsText(file, 'utf-8');
+  const name = file.name.toLowerCase();
+
+  if (name.endsWith('.csv')) {
+    reader.onload = function(e) {
+      try {
+        const parsed = parseCSV(e.target.result);
+        processData(parsed);
+      } catch(err) { showStatus('❌ Error: ' + err.message, 'error'); }
+    };
+    reader.readAsText(file, 'utf-8');
+  } else {
+    // Excel file - xlsx/xls
+    reader.onload = function(e) {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const wb = XLSX.read(data, {type: 'array'});
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+        processData(json);
+      } catch(err) { showStatus('❌ Error: ' + err.message, 'error'); }
+    };
+    reader.readAsArrayBuffer(file);
+  }
 }
 
 function parseCSV(text) {
@@ -146,6 +149,21 @@ function parseCSV(text) {
   return rows;
 }
 
+function processData(rows) {
+  if (!rows || rows.length < 2) { showStatus('File mein data nahi hai!', 'error'); return; }
+  const headers = rows[0].map(h => String(h).trim());
+  const statusIdx = headers.findIndex(h => h.toLowerCase().replace(/\s/g,'').includes('currentstatus'));
+  let pending = 0;
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    const status = statusIdx >= 0 ? String(row[statusIdx] || '').toLowerCase().trim() : '';
+    if (status === 'dispatched') pending++;
+  }
+  currentData = { headers, rows };
+  showStatus(`✅ File ready! Total: ${rows.length-1} rows | Dispatched: ${pending}`, 'success');
+  document.getElementById('addBtn').disabled = false;
+}
+
 function addFE() {
   const date = document.getElementById('dateInput').value;
   const dsp = document.getElementById('dspInput').value.trim();
@@ -153,9 +171,9 @@ function addFE() {
 
   if (!dsp) { showStatus('DSP number daalo!', 'error'); return; }
   if (!feName) { showStatus('FE name daalo!', 'error'); return; }
-  if (!currentCSV) { showStatus('CSV upload karo!', 'error'); return; }
+  if (!currentData) { showStatus('File upload karo!', 'error'); return; }
 
-  const headers = currentCSV[0];
+  const { headers, rows } = currentData;
   const idx = {
     waybill: headers.findIndex(h => h.toLowerCase().includes('waybill')),
     client:  headers.findIndex(h => h.toLowerCase().includes('client')),
@@ -165,25 +183,29 @@ function addFE() {
   };
 
   const packets = [];
-  for (let i = 1; i < currentCSV.length; i++) {
-    const row = currentCSV[i];
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
     if (!row || row.length < 2) continue;
-    const status = idx.status >= 0 ? (row[idx.status] || '').toLowerCase().trim() : '';
-    if (status !== 'pending') continue;
+    const status = idx.status >= 0 ? String(row[idx.status] || '').toLowerCase().trim() : '';
+    if (status !== 'dispatched') continue;
     packets.push({
-      awb:    idx.waybill >= 0 ? row[idx.waybill] : '',
-      client: idx.client  >= 0 ? row[idx.client]  : '',
-      order:  idx.order   >= 0 ? row[idx.order]   : '',
-      remark: idx.remark  >= 0 ? row[idx.remark]  : '',
+      awb:    idx.waybill >= 0 ? String(row[idx.waybill] || '') : '',
+      client: idx.client  >= 0 ? String(row[idx.client]  || '') : '',
+      order:  idx.order   >= 0 ? String(row[idx.order]   || '') : '',
+      remark: idx.remark  >= 0 ? String(row[idx.remark]  || '') : '',
     });
   }
 
   if (packets.length === 0) {
-    showStatus('Is CSV mein koi Pending packet nahi mila!', 'error');
+    showStatus('Is file mein koi Dispatched packet nahi mila!', 'error');
     return;
   }
 
-  allData.push({ date, dsp, feName, packets });
+  // Format date for display
+  const parts = date.split('-');
+  const displayDate = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : date;
+
+  allData.push({ date: displayDate, dsp, feName, packets });
 
   // UI update
   const tag = document.createElement('span');
@@ -192,19 +214,17 @@ function addFE() {
   document.getElementById('feList').appendChild(tag);
   document.getElementById('feListDiv').style.display = 'block';
 
-  // Stats update
   document.getElementById('totalFE').textContent = allData.length;
-  const totalPkts = allData.reduce((sum, fe) => sum + fe.packets.length, 0);
-  document.getElementById('totalPkts').textContent = totalPkts;
+  document.getElementById('totalPkts').textContent = allData.reduce((s, fe) => s + fe.packets.length, 0);
 
   showStatus(`✅ ${feName} add ho gaya - ${packets.length} pending packets!`, 'success');
   document.getElementById('downloadBtn').disabled = false;
 
-  // Reset for next FE
+  // Reset
   document.getElementById('dspInput').value = '';
   document.getElementById('feInput').value = '';
-  document.getElementById('csvFile').value = '';
-  currentCSV = null;
+  document.getElementById('dataFile').value = '';
+  currentData = null;
   document.getElementById('addBtn').disabled = true;
 }
 
@@ -213,70 +233,32 @@ function downloadEOD() {
 
   const wb = XLSX.utils.book_new();
 
-  // ---- SHEET 1: EOD Rejection (PDF jaisa format) ----
+  // EOD Sheet
   const wsData = [];
-
-  // Title row
-  const dateVal = document.getElementById('dateInput').value;
-  wsData.push(['Daily EOD Rejection Report - ' + dateVal, '', '', '', '', '', '', '']);
-  wsData.push([]); // blank
-
-  // Headers - PDF jaisa
   wsData.push(['Date', 'DSP No', 'Awb No', 'Client Name', 'Order- No', 'Remarks Of NSL', 'Fe Name', 'Hand over']);
-
-  // Pehle FE wala filter active rahega
-  const firstFE = allData[0].feName;
 
   for (const fe of allData) {
     for (const pkt of fe.packets) {
-      wsData.push([
-        fe.date,
-        fe.dsp,
-        pkt.awb,
-        pkt.client,
-        pkt.order,
-        pkt.remark,
-        fe.feName,
-        '' // Hand over blank
-      ]);
+      wsData.push([fe.date, fe.dsp, pkt.awb, pkt.client, pkt.order, pkt.remark, fe.feName, '']);
     }
   }
 
   const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-  // Column widths
-  ws['!cols'] = [
-    {wch: 12}, {wch: 12}, {wch: 22}, {wch: 22},
-    {wch: 28}, {wch: 35}, {wch: 16}, {wch: 12}
-  ];
-
-  // Auto filter row 3 pe (header row)
-  ws['!autofilter'] = { ref: 'A3:H3' };
-
-  // Freeze row 3
-  ws['!freeze'] = { xSplit: 0, ySplit: 3 };
+  ws['!cols'] = [{wch:12},{wch:12},{wch:22},{wch:22},{wch:28},{wch:35},{wch:16},{wch:12}];
+  ws['!autofilter'] = { ref: 'A1:H1' };
 
   XLSX.utils.book_append_sheet(wb, ws, 'EOD Rejection');
 
-  // ---- SHEET 2: FE Summary ----
-  const summaryData = [
-    ['FE Summary - ' + dateVal],
-    [],
-    ['Fe Name', 'DSP No', 'Total Pending Packets']
-  ];
-  for (const fe of allData) {
-    summaryData.push([fe.feName, fe.dsp, fe.packets.length]);
-  }
-  summaryData.push([]);
-  summaryData.push(['TOTAL', '', allData.reduce((s, fe) => s + fe.packets.length, 0)]);
-
-  const ws2 = XLSX.utils.aoa_to_sheet(summaryData);
-  ws2['!cols'] = [{wch: 20}, {wch: 14}, {wch: 22}];
+  // Summary Sheet
+  const s2 = [['Fe Name','DSP No','Total Pending']];
+  for (const fe of allData) s2.push([fe.feName, fe.dsp, fe.packets.length]);
+  s2.push(['TOTAL','', allData.reduce((s,fe)=>s+fe.packets.length,0)]);
+  const ws2 = XLSX.utils.aoa_to_sheet(s2);
+  ws2['!cols'] = [{wch:20},{wch:14},{wch:18}];
   XLSX.utils.book_append_sheet(wb, ws2, 'FE Summary');
 
-  // Download
-  const fname = `EOD_Rejection_${dateVal}.xlsx`;
-  XLSX.writeFile(wb, fname);
+  const dateStr = document.getElementById('dateInput').value;
+  XLSX.writeFile(wb, `EOD_Rejection_${dateStr}.xlsx`);
 }
 </script>
 </body>
